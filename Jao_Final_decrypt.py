@@ -11,30 +11,29 @@ import json
 
 #  ===== INPUT =====
 print("\n> Accept Filename")
-filename = input("Enter name of text file: ")
+input_file = input("Enter name of text file to be decrypted: ")
+
+encyrpted_folder = "encrypted"
+encrypted_filename = f"encrypted_{input_file}"
+
+key_folder = "keys"
+key_filename = f"keys_{input_file}"
+
+encrypted_file = os.path.join(encyrpted_folder, encrypted_filename)
+key_file = os.path.join(key_folder, key_filename)
+
 
 #  Check if the file exist
-if os.path.exists(filename):
-    with open(filename, 'r') as file:
+if os.path.exists(encrypted_file) and os.path.exists(key_file):
+    with open(encrypted_file, 'r') as file:
         content = file.read()
         ciphertext = [int(item.strip()) for item in content.split(', ')]
+
+    with open(key_file, 'r') as file:
+        key_contents = json.load(file)
 else:
-    print(f"\n!! File: '{filename}' does not exist. Make sure your filename is correct. Exiting....")
+    print(f"\n!! Files: '{encrypted_file}' and '{key_file}' does not exist. Make sure your filename is correct. Exiting....")
     sys.exit(1)
-
-#  Accept user input keys
-print("\n> Accept Keys")
-
-#  Check if the file exist
-while True:
-    keys_filename = input("Enter name of text file containing the generated keys: ")
-
-    if not os.path.exists(keys_filename):
-        print(f"\n!! File: '{keys_filename}' does not exist. Make sure your filename is correct. Try agian.")
-    else:
-        with open(keys_filename, 'r') as file:
-            key_contents = json.load(file)
-        break
 
 #  distribute key contents
 otp = key_contents["otp"]
@@ -135,32 +134,33 @@ vigenere_decrypted_text = vigenere_decrypt(vernam_decrypted_text, vigenere_key)
 caesar_decrypted_text = caesar_decrypt(vigenere_decrypted_text, caesar_key)
 text = caesar_decrypted_text
 
+
 for i in range(loop_num):
     transposition_decrypted_text = transposition_decrypt(text, transposition_key)
     text = transposition_decrypted_text
 
 decrypted_text = transposition_decrypted_text.strip()
 
+#  decryption checker
+# print(rsa_decrypted_text)
+# print(vernam_decrypted_text)
+# print(vigenere_decrypted_text)
+# print(caesar_decrypted_text)
+# print(decrypted_text)
+
 #  ===== OUTPUT ======
-def decrypted_text_to_file(filename, content):
-    filename = filename[len("encrypted_"):]
-    name = f"decrypted_{filename}"
+def decrypted_text_to_file(output_folder, filename, content):
+    name = os.path.join(output_folder, f"decrypted_{filename}")
     with open(name, 'w') as file:
         file.write(content)
 
 
-decrypted_text_to_file(filename, decrypted_text)
+decrypted_text_to_file("decrypted", input_file, decrypted_text)
 
 #  ===== HASH CHECKING =====
 print("\n> Hash Checking")
-
-while True:
-    original_file = input("Enter original file for has comparison: ")
-
-    if not os.path.exists(original_file):
-        print(f"\n!! File: '{original_file}' does not exist. Make sure your filename is correct. Try agian.")
-    else:
-        break
+path = "plaintext"
+original_file = os.path.join(path, input_file)
 
 
 def get_hash(content):

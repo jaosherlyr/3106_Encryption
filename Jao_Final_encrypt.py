@@ -13,13 +13,16 @@ import json
 #  ===== INPUT =====
 print("\n> Accept Filename")
 filename = input("Enter name of text file: ")
+path = "plaintext"
+
+file = os.path.join(path, filename)
 
 #  Check if the file exist
-if os.path.exists(filename):
-    with open(filename, 'r') as file:
+if os.path.exists(file):
+    with open(file, 'r') as file:
         plaintext = file.read()
 else:
-    print(f"\n!! File: '{filename}' does not exist. Make sure your filename is correct. Exiting....")
+    print(f"\n!! File: '{file}' does not exist. Make sure your filename is correct. Exiting....")
     sys.exit(1)
 
 print("\n> Accept Keys")
@@ -197,26 +200,33 @@ otp = get_otp(len(vigenere_ciphertext))
 vernam_ciphertext = vernam_encrypt(vigenere_ciphertext, otp)
 rsa_ciphertext = rsa_encrypt(vernam_ciphertext, encryption_key)
 
+# encryption checker
+# print(rsa_ciphertext)
+# print(vernam_ciphertext)
+# print(vigenere_ciphertext)
+# print(caesar_ciphertext)
+# print(transposition_ciphertext)
+
 #  ===== OUTPUT =====
-def encrypted_text_to_file(filename, content):
-    name = f"encrypted_{filename}"
+def encrypted_text_to_file(output_folder, filename, content):
+    name = os.path.join(output_folder, f"encrypted_{filename}")
     with open(name, 'w') as file:
         file.write(', '.join(str(item) for item in content))
 
 
-def keys_to_file(filename, otp, decryption_key, loop_num):
+def keys_to_file(output_folder, filename, otp, decryption_key, loop_num):
     content = {
         "otp": otp,
         "decryption_key": decryption_key,
         "loop_num": loop_num
     }
 
-    name = f"keys_{filename}"
+    name = os.path.join(output_folder, f"keys_{filename}")
     with open(name, 'w') as file:
         json.dump(content, file)
 
 
-encrypted_text_to_file(filename, rsa_ciphertext)
-keys_to_file(filename, otp, decryption_key, loop_num)
+encrypted_text_to_file("encrypted", filename, rsa_ciphertext)
+keys_to_file("keys", filename, otp, decryption_key, loop_num)
 
 print("\n!! ENCRYPTION SUCCESS !!\n")
